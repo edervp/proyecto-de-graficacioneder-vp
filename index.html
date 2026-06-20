@@ -1,0 +1,385 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Graficación</title>
+  <style>
+    :root {
+      --bg-dark: #000000;
+      --text-main: #ffffff;
+      --text-muted: #666666;
+      --border-color: #222222;
+      --hover-bg: #111111;
+    }
+    
+    body, html {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100vh;
+      background: var(--bg-dark);
+      color: var(--text-main);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      overflow: hidden;
+    }
+
+    .glass-panel {
+      background: transparent;
+      border: none;
+      box-shadow: none;
+      border-radius: 0;
+    }
+    
+    .topbar {
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 30px;
+      border-bottom: 1px solid var(--border-color);
+      background: var(--bg-dark);
+      z-index: 20;
+      position: relative;
+    }
+    .logo-title {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      font-size: 0.9rem;
+      font-weight: 400;
+      letter-spacing: 3px;
+      color: var(--text-main);
+    }
+    .logo-title svg { stroke: var(--text-main); }
+    
+    .status-live {
+      color: var(--text-muted);
+      font-weight: 400;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid var(--border-color);
+      padding: 4px 12px;
+      background: transparent;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    .app-container {
+      display: flex;
+      height: calc(100vh - 60px);
+      position: relative;
+    }
+    
+    .left-panel {
+      width: 240px;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      z-index: 10;
+      border-right: 1px solid var(--border-color);
+      padding: 20px;
+    }
+    
+    .file-loader {
+      padding: 0 0 30px 0;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 15px;
+    }
+    
+    .file-input-wrapper {
+      width: 100%;
+    }
+    
+    .synth-btn {
+      display: block;
+      width: 100%;
+      background: transparent;
+      color: var(--text-main);
+      border: 1px solid var(--border-color);
+      padding: 10px 15px;
+      font-size: 0.75rem;
+      font-weight: 400;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-align: center;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .synth-btn:hover {
+      background: var(--text-main);
+      color: var(--bg-dark);
+    }
+    .synth-btn:active {
+      opacity: 0.7;
+    }
+    
+    .file-name {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      word-break: break-all;
+    }
+    
+    .stats-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      padding: 0;
+    }
+    .stat-box {
+      background: transparent;
+      border: none;
+      padding: 0;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .stat-lbl {
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin: 0;
+    }
+    .stat-val {
+      font-size: 0.85rem;
+      font-weight: 400;
+      color: var(--text-main);
+    }
+    .stat-val.magenta { color: var(--text-main); }
+    
+    .canvas-container {
+      flex-grow: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+    #circlechart {
+      max-width: 100%;
+      max-height: 100%;
+      cursor: grab;
+    }
+    #circlechart:active {
+      cursor: grabbing;
+    }
+    
+    .right-panel {
+      width: 260px;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      overflow-y: auto;
+      z-index: 10;
+      border-left: 1px solid var(--border-color);
+      padding: 20px;
+    }
+    
+    .right-panel::-webkit-scrollbar { width: 2px; }
+    .right-panel::-webkit-scrollbar-track { background: transparent; }
+    .right-panel::-webkit-scrollbar-thumb { background: var(--border-color); }
+    
+    .control-group {
+      padding: 0 0 30px 0;
+    }
+    .control-group h4 {
+      margin: 0 0 15px 0;
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      font-weight: 400;
+      border-bottom: none;
+    }
+    .sub-heading {
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      margin: 15px 0 10px 0;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .control-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      font-size: 0.75rem;
+    }
+    .control-row label {
+      color: var(--text-main);
+      flex: 1;
+      font-weight: 400;
+    }
+    
+    input[type=range] {
+      flex: 1.5;
+      -webkit-appearance: none;
+      background: transparent;
+      margin: 0 10px;
+    }
+    input[type=range]:focus { outline: none; }
+    input[type=range]::-webkit-slider-runnable-track {
+      width: 100%;
+      height: 1px;
+      cursor: pointer;
+      background: var(--border-color);
+    }
+    input[type=range]::-webkit-slider-thumb {
+      height: 12px;
+      width: 12px;
+      border-radius: 50%;
+      background: var(--text-main);
+      cursor: pointer;
+      -webkit-appearance: none;
+      margin-top: -5px;
+    }
+    
+    .control-row .val {
+      width: 40px;
+      text-align: right;
+      color: var(--text-muted);
+      font-weight: 400;
+      font-size: 0.75rem;
+    }
+    
+    .btn-outline {
+      background: transparent;
+      color: var(--text-main);
+      border: 1px solid var(--border-color);
+      padding: 8px 0;
+      font-size: 0.75rem;
+      font-weight: 400;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: all 0.2s;
+      width: 100%;
+      text-transform: uppercase;
+    }
+    .btn-outline:hover {
+      background: var(--text-main);
+      color: var(--bg-dark);
+    }
+    .btn-outline.active-red {
+      color: var(--text-main);
+      border-color: var(--text-main);
+    }
+
+    #ui-rotacion h3 {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      font-weight: 400;
+      margin-top: 0;
+      margin-bottom: 15px;
+    }
+
+    @media (max-width: 800px) {
+      body, html { height: auto; overflow: auto; }
+      .app-container { flex-direction: column; height: auto; }
+      .left-panel, .right-panel { width: 90%; margin: 15px auto; border: none; padding: 0; }
+      .canvas-container { min-height: 50vh; width: 100%; }
+      .topbar { height: auto; flex-direction: column; padding: 15px; gap: 10px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Barra Superior -->
+  <header class="topbar">
+    <div class="logo-title">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+      <span>GRAFICACIÓN</span>
+    </div>
+    <div class="status-live">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="8"></circle></svg>
+      ONLINE
+    </div>
+  </header>
+
+  <div class="app-container" style="flex-direction: column;">
+    
+    <!-- Área del Visor (Canvas) arriba -->
+    <main class="canvas-container" id="canvas-container" style="flex: 1; min-height: 50vh;">
+      <canvas id="circlechart" width="800" height="600"></canvas>
+    </main>
+
+    <!-- Menú inferior responsivo -->
+    <div class="bottom-panel" style="display: flex; flex-wrap: wrap; gap: 20px; border-top: 1px solid var(--border-color); padding: 15px; background: var(--bg-dark); max-height: 35vh; overflow-y: auto;">
+      
+      <!-- Carga de Archivos -->
+      <div style="flex: 1; min-width: 200px; display: flex; flex-direction: column; gap: 10px;">
+        <div class="file-loader" style="padding:0;">
+          <div class="file-input-wrapper">
+            <label for="file-input-base" class="synth-btn">[+] Cargar Pieza Base</label>
+            <input type="file" id="file-input-base" accept=".txt,.dat,.obj" style="display: none;" />
+          </div>
+          <div class="file-name" id="file-name-base" style="margin-top:5px;">&lt; NO LOADED DATA &gt;</div>
+        </div>
+        <div class="file-loader" style="padding:0;">
+          <div class="file-input-wrapper">
+            <label for="file-input-movil" class="synth-btn">[+] Cargar Pieza Ensamblable</label>
+            <input type="file" id="file-input-movil" accept=".txt,.dat,.obj" style="display: none;" />
+          </div>
+          <div class="file-name" id="file-name-movil" style="margin-top:5px;">&lt; NO LOADED DATA &gt;</div>
+        </div>
+      </div>
+
+      <!-- Controles: Animar y Rotación -->
+      <div style="flex: 1; min-width: 220px; display: flex; flex-direction: column; align-items: center;">
+        <button class="synth-btn" id="btn-auto-rotate" style="margin-bottom: 10px; max-width: 150px;">▶ ANIMAR</button>
+        <div class="dpad-container" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; width: 120px;">
+          <div></div>
+          <button class="synth-btn" id="btn-rot-up" style="padding: 5px; font-size: 1rem;">▲</button>
+          <div></div>
+          <button class="synth-btn" id="btn-rot-left" style="padding: 5px; font-size: 1rem;">◀</button>
+          <div style="display: flex; justify-content: center; align-items: center; color: var(--text-muted); opacity: 0.5;">✥</div>
+          <button class="synth-btn" id="btn-rot-right" style="padding: 5px; font-size: 1rem;">▶</button>
+          <div></div>
+          <button class="synth-btn" id="btn-rot-down" style="padding: 5px; font-size: 1rem;">▼</button>
+          <div></div>
+        </div>
+      </div>
+
+      <!-- Estadísticas -->
+      <div class="stats-grid" style="flex: 1; min-width: 150px; padding: 0;">
+        <div class="stat-box">
+          <span class="stat-lbl">VERTICES</span>
+          <span class="stat-val" id="stat-verts">0</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-lbl">POLYS</span>
+          <span class="stat-val magenta" id="stat-tris">0</span>
+        </div>
+      </div>
+
+      <!-- Textareas -->
+      <div class="code-panels" style="flex: 2; min-width: 300px; display:flex; gap:10px;">
+        <div style="flex: 1; display: flex; flex-direction: column;">
+           <label style="font-size:0.65rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:5px;">Código Base</label>
+           <textarea id="raw-base" readonly style="flex:1; width:100%; box-sizing:border-box; background:transparent; color:var(--text-main); border:1px solid var(--border-color); font-family:monospace; font-size:0.65rem; resize:none; padding:8px;"></textarea>
+        </div>
+        <div style="flex: 1; display: flex; flex-direction: column;">
+           <label style="font-size:0.65rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:5px;">Código Ensamblado</label>
+           <textarea id="raw-movil" readonly style="flex:1; width:100%; box-sizing:border-box; background:transparent; color:var(--text-main); border:1px solid var(--border-color); font-family:monospace; font-size:0.65rem; resize:none; padding:8px;"></textarea>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="./dist/src/index.js" type="module"></script>
+</body>
+</html>
+
+<!-- GitHub pages trigger -->
