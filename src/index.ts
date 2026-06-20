@@ -1,5 +1,6 @@
 import { Obj3D } from './Obj3D.js';
 import { CvZbuf } from './CvZbuf.js';
+import { pinzaBaseData, pinzaMovilData } from './defaultModels.js';
 
 let canvas: HTMLCanvasElement;
 let graphics: CanvasRenderingContext2D;
@@ -258,31 +259,27 @@ canvas.addEventListener('wheel', (e) => {
 // Cargar pinza por defecto al iniciar
 window.addEventListener('load', () => {
   cv = new CvZbuf(graphics, canvas);
-  Promise.all([
-    fetch('./pinza_base.txt?v=' + Date.now()).then(r => r.ok ? r.text() : ""),
-    fetch('./pinza_movil.txt?v=' + Date.now()).then(r => r.ok ? r.text() : "")
-  ]).then(([baseData, movilData]) => {
-    
-    if (baseData) {
-      let tempObj = new Obj3D();
-      if (tempObj.read(baseData)) {
+  
+  if (pinzaBaseData) {
+    let tempObj = new Obj3D();
+    if (tempObj.read(pinzaBaseData)) {
         tempObj.baseColorR = 190; tempObj.baseColorG = 190; tempObj.baseColorB = 190;
         baseObj = tempObj;
         const rawEl = document.getElementById('raw-base') as HTMLTextAreaElement;
-        if (rawEl) rawEl.value = baseData;
+        if (rawEl) rawEl.value = pinzaBaseData;
         const nameEl = document.getElementById('file-name-base');
         if (nameEl) nameEl.innerText = 'pinza_base.txt';
       }
     }
     
-    if (movilData) {
+    if (pinzaMovilData) {
       let tempObj = new Obj3D();
-      if (tempObj.read(movilData)) {
+      if (tempObj.read(pinzaMovilData)) {
         tempObj.baseColorR = 190; tempObj.baseColorG = 190; tempObj.baseColorB = 190;
         tempObj.pivotX = 0; tempObj.pivotY = 0; tempObj.pivotZ = 0;
         movilObj = tempObj;
         const rawEl = document.getElementById('raw-movil') as HTMLTextAreaElement;
-        if (rawEl) rawEl.value = movilData;
+        if (rawEl) rawEl.value = pinzaMovilData;
         const nameEl = document.getElementById('file-name-movil');
         if (nameEl) nameEl.innerText = 'pinza_movil.txt';
       }
@@ -295,5 +292,4 @@ window.addEventListener('load', () => {
       if (btn) btn.innerHTML = '■ DETENER';
       rotateLoop();
     }
-  }).catch(err => console.error('Error loading default model:', err));
 });
